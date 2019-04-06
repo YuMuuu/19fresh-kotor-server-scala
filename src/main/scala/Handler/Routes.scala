@@ -1,7 +1,6 @@
 package Handler
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
@@ -9,105 +8,105 @@ import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.ExecutionContext
 
-class Routes(implicit val system: ActorSystem,
-             materializer: ActorMaterializer,
-             ec: ExecutionContext) {
+class Routes()(implicit val system: ActorSystem,
+               materializer: ActorMaterializer,
+               ec: ExecutionContext) {
   lazy val config = ConfigFactory.load() // デフォルトで application.conf が読まれる
   lazy val host = config.getString("http.host")
   lazy val port = config.getInt("http.port")
 
-  def route: Route =
-    path("/oauth") {
+  val route: Route =
+    pathPrefix("oauth") {
       //認証
-      path("/signup") {
-        post {
-          //サインアップする
-          complete(
-            HttpEntity(ContentTypes.`text/html(UTF-8)`,
-                       "<h1>Say hello to akka-http</h1>"))
-        }
-      } ~ path("/signin") {
-        post {
-          //サインインする
-          complete(
-            HttpEntity(ContentTypes.`text/html(UTF-8)`,
-                       "<h1>Say hello to akka-http</h1>"))
-        }
-      }
-    }~ path("/users") {
-      //ユーザ
-      path("/{username") {
-        get {
-          //"user情報を取得する
-          complete(
-            HttpEntity(ContentTypes.`text/html(UTF-8)`,
-                       "<h1>Say hello to akka-http</h1>"))
-        }
-      }
-      post {
-        ///userを作成する
-        complete(
-          HttpEntity(ContentTypes.`text/html(UTF-8)`,
-                     "<h1>Say hello to akka-http</h1>"))
-      }
-      put {
-        //userを更新する
-        complete(
-          HttpEntity(ContentTypes.`text/html(UTF-8)`,
-                     "<h1>Say hello to akka-http</h1>"))
-      }
-    } ~ path("/tweets") {
-      //ツイート
-      post{
-        //ツイートする
-        complete(
-          HttpEntity(ContentTypes.`text/html(UTF-8)`,
-            "<h1>Say hello to akka-http</h1>"))
-      }
-      path("/{tweets_id}") {
-        get {
-          //ツイート情報を取得する
-          complete(
-            HttpEntity(ContentTypes.`text/html(UTF-8)`,
-              "<h1>Say hello to akka-http</h1>"))
-        }
-        path("/retweet"){
+      pathPrefix("signup") {
+        pathEnd {
           post {
-            //ツイート情報を取得する，解除する
-            complete(
-              HttpEntity(ContentTypes.`text/html(UTF-8)`,
-                "<h1>Say hello to akka-http</h1>"))
+            //サインアップする
+            complete("サインアップする")
+          }
+        }
+      } ~ pathPrefix("signin") {
+        pathEnd {
+          post {
+            //サインインする
+            complete("サインインする")
           }
         }
       }
-      path("/timelines") {
-        get {
-          //タイムラインを取得する
-          complete(
-            HttpEntity(ContentTypes.`text/html(UTF-8)`,
-              "<h1>Say hello to akka-http</h1>"))
+    } ~ pathPrefix("users") {
+      //ユーザ
+      pathPrefix("{username}") {
+        pathEnd {
+          get {
+            //"user情報を取得する
+            complete("user情報を取得する")
+          }
         }
       }
-    } ~ path("/followers/{username}") {
-      get {
-        //フォロワーを取得
-        complete(
-          HttpEntity(ContentTypes.`text/html(UTF-8)`,
-            "<h1>Say hello to akka-http</h1>"))
+      pathEnd {
+        post {
+          ///userを作成する
+          complete("userを作成する")
+        }
       }
-    } ~ path("/follows/{username}") {
-      get {
-        //フォローを取得
-        complete(
-          HttpEntity(ContentTypes.`text/html(UTF-8)`,
-            "<h1>Say hello to akka-http</h1>"))
+      pathEnd {
+        put {
+          //userを更新する
+          complete("userを更新する")
+        }
       }
-    } ~ path("/follow/{username}") {
-      post {
-        //フォローする
-        complete(
-          HttpEntity(ContentTypes.`text/html(UTF-8)`,
-            "<h1>Say hello to akka-http</h1>"))
+    } ~ pathPrefix("tweets") {
+      pathEnd {
+        //ツイート
+        post {
+          //ツイートする
+          complete("ツイートする")
+        }
+      }
+      pathPrefix("{tweets_id}") {
+        pathEnd {
+          get {
+            //ツイート情報を取得する
+            complete("tweet情報を取得する")
+          }
+        }
+        pathPrefix("retweet") {
+          pathEnd {
+            post {
+              //ツイート情報を取得する，解除する
+              complete("tweet情報を取得する，解除する")
+            }
+          }
+        }
+      }
+      pathPrefix("timelines") {
+        pathEnd {
+          get {
+            //タイムラインを取得する
+            complete("タイムラインを取得する")
+          }
+        }
+      }
+    } ~ pathPrefix("followers/{username}") {
+      pathEnd {
+        get {
+          //フォロワーを取得
+          complete("フォロワーを取得すする")
+        }
+      }
+    } ~ pathPrefix("follows/{username}") {
+      pathEnd {
+        get {
+          //フォローを取得
+          complete("ふぉろーを取得する")
+        }
+      }
+    } ~ pathPrefix("follow/{username}") {
+      pathEnd {
+        post {
+          //フォローする
+          complete("フォローする")
+        }
       }
     }
 
@@ -116,7 +115,7 @@ class Routes(implicit val system: ActorSystem,
 }
 
 object Routes {
-  def apply(implicit system: ActorSystem,
-            materializer: ActorMaterializer,
-            ec: ExecutionContext) = new Routes()
+  def apply()(implicit system: ActorSystem,
+              materializer: ActorMaterializer,
+              ec: ExecutionContext) = new Routes()
 }
