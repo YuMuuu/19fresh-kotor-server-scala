@@ -16,99 +16,86 @@ class Routes()(implicit val system: ActorSystem,
   lazy val port = config.getInt("http.port")
 
   val route: Route =
-    pathPrefix("oauth") {
-      //認証
-      pathPrefix("signup") {
-        pathEnd {
-          post {
-            //サインアップする
-            complete("サインアップする")
-          }
-        }
-      } ~ pathPrefix("signin") {
-        pathEnd {
-          post {
+    post {
+      pathPrefix("oauth") {
+        //認証
+        path("signup") {
+          //サインアップする
+          complete("sign_up")
+        } ~
+          path("signin") {
+
             //サインインする
-            complete("サインインする")
+            complete("sign_in")
           }
-        }
       }
-    } ~ pathPrefix("users") {
-      //ユーザ
-      pathPrefix("{username}") {
-        pathEnd {
-          get {
-            //"user情報を取得する
-            complete("user情報を取得する")
-          }
-        }
-      }
-      pathEnd {
-        post {
+    } ~
+      post {
+        pathPrefix("users") {
           ///userを作成する
-          complete("userを作成する")
+          complete("create_user")
         }
-      }
-      pathEnd {
-        put {
+      } ~
+      put {
+        pathPrefix("users") {
           //userを更新する
-          complete("userを更新する")
+          complete("update_user")
         }
-      }
-    } ~ pathPrefix("tweets") {
-      pathEnd {
-        //ツイート
-        post {
-          //ツイートする
-          complete("ツイートする")
+      } ~
+      get {
+        pathPrefix("users") {
+          path("username") {
+            //"user情報を取得する
+            complete("get_userInfo")
+          }
         }
-      }
-      pathPrefix("{tweets_id}") {
-        pathEnd {
-          get {
-            //ツイート情報を取得する
+      } ~
+      post {
+        //ツイートする
+        pathPrefix("tweets") {
+          complete("post_tweet")
+        }
+      } ~
+      get {
+        //ツイート情報を取得する
+        pathPrefix("tweets") {
+          pathPrefix("tweets_id") {
             complete("tweet情報を取得する")
           }
         }
-        pathPrefix("retweet") {
-          pathEnd {
-            post {
-              //ツイート情報を取得する，解除する
-              complete("tweet情報を取得する，解除する")
-            }
+      } ~
+      post {
+        //ツイート情報を取得する，解除する
+        pathPrefix("tweets") {
+          pathPrefix("retweet") {
+            complete("tweet情報を取得する，解除する")
           }
         }
+//        pathPrefix("timelines") {
+//          get {
+//            //タイムラインを取得する
+//            complete("タイムラインを取得する")
+//          }
+//        }
+//      } ~
+//      pathPrefix("followers/username") {
+//        get {
+//          //フォロワーを取得
+//          complete("フォロワーを取得すする")
+//        }
+//      } ~
+//      pathPrefix("follows/username") {
+//        get {
+//          //フォローを取得
+//          complete("ふぉろーを取得する")
+//        }
+//      } ~
+//      pathPrefix("follow/username") {
+//        post {
+//          //フォローする
+//          complete("フォローする")
+//        }
       }
-      pathPrefix("timelines") {
-        pathEnd {
-          get {
-            //タイムラインを取得する
-            complete("タイムラインを取得する")
-          }
-        }
-      }
-    } ~ pathPrefix("followers/{username}") {
-      pathEnd {
-        get {
-          //フォロワーを取得
-          complete("フォロワーを取得すする")
-        }
-      }
-    } ~ pathPrefix("follows/{username}") {
-      pathEnd {
-        get {
-          //フォローを取得
-          complete("ふぉろーを取得する")
-        }
-      }
-    } ~ pathPrefix("follow/{username}") {
-      pathEnd {
-        post {
-          //フォローする
-          complete("フォローする")
-        }
-      }
-    }
 
   val bindingFuture = Http().bindAndHandle(route, host, port)
 
@@ -118,4 +105,7 @@ object Routes {
   def apply()(implicit system: ActorSystem,
               materializer: ActorMaterializer,
               ec: ExecutionContext) = new Routes()
+  def route()(implicit system: ActorSystem,
+              materializer: ActorMaterializer,
+              ec: ExecutionContext) = new Routes().route
 }
